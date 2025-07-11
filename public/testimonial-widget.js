@@ -14,7 +14,8 @@
   }
 
   // The API URL will be the domain where this script is hosted
-  const apiUrl = `${window.location.protocol}//${window.location.host}/api/testimonials/${userId}`;
+  const YOUR_APP_DOMAIN = "https://testimonial-wall.vercel.app"; // << REPLACE THIS
+  const apiUrl = `${YOUR_APP_DOMAIN}/api/testimonials/${userId}`;
   // For local testing, you might need to override this:
   // const apiUrl = `http://localhost:5173/api/testimonials/${userId}`;
 
