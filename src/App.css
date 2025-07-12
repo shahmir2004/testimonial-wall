@@ -1,42 +1,92 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* src/App.css */
+
+.main-header {
+  padding: var(--space-md) 0;
+  background-color: rgba(var(--bg-secondary-rgb), 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-primary);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: var(--color-transition);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--text-headings);
+  text-decoration: none;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.nav-link {
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  position: relative;
+  padding: var(--space-sm) 0;
+  transition: color var(--transition-speed-fast) ease;
+}
+.nav-link:hover {
+  color: var(--text-primary);
+  text-decoration: none; /* Ensure no underline on hover for nav links */
+}
+.nav-link.active {
+  color: var(--text-accent);
+  font-weight: 600;
 }
 
-.card {
-  padding: 2em;
+.nav-link.active::after { /* Underline effect */
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-accent);
 }
 
-.read-the-docs {
-  color: #888;
+.nav-link.btn {
+  padding: 0.5rem 1.2rem; /* Restore button padding */
+  font-size: 0.9rem;
+  /* Explicitly set the text color, overriding any generic .nav-link color */
+  color: var(--text-on-brand-bg) !important; /* Force text to be visible on its brand background */
 }
+.nav-link.btn:hover { color: var(--text-on-brand-bg); }
+body.dark-mode .nav-link.btn:hover { color: var(--text-primary); }
+
+.nav-link-button {
+  background: none;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: 1em;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: var(--space-sm) 0;
+  transition: color var(--transition-fast) ease;
+}
+.nav-link-button:hover { color: var(--text-primary); }
+
+
+.main-footer {
+  padding: var(--space-2xl) 0;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-primary);
+  margin-top: var(--space-3xl);
+  transition: var(--color-transition);
+}
+
+.footer-container { text-align: center; color: var(--text-secondary); font-size: 0.9rem; }

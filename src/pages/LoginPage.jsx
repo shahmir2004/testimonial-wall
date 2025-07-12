@@ -4,47 +4,56 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './LoginPage.css'; // New CSS file for this page
 
 function LoginPage() {
+  const { session } = useAuth();
   const navigate = useNavigate();
 
-  // Check if a user is already logged in and redirect them to the dashboard
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
-      }
-    };
-    checkSession();
-  }, [navigate]);
-
-  // Listen for authentication events (like successful login)
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        // Redirect to dashboard on successful sign-in
-        navigate('/dashboard');
-      }
-    });
-
-    // Cleanup subscription on component unmount
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    if (session) {
+      navigate('/dashboard');
+    }
+  }, [session, navigate]);
 
   return (
-    <div style={{ maxWidth: '420px', margin: '50px auto' }}>
-      <h2>Welcome to Testimonial Wall</h2>
-      <p>Sign in or create an account to start managing your testimonials.</p>
-      <Auth
-        supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }} // Pre-styled theme
-        theme="dark" // Or "light" depending on your default theme
-        providers={['google', 'github']} // Optional: Add social logins
-        redirectTo={window.location.origin + '/dashboard'} // Redirect after social login email confirmation
-      />
+    <div className="login-page-container">
+      <div className="login-card">
+        <h2 className="login-title">Welcome to Testimonial Wall</h2>
+        <p className="login-subtitle">Sign in or create an account to get started.</p>
+        <div className="auth-form-wrapper">
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+                theme: ThemeSupa,
+                // Override Supabase theme with our CSS variables
+                variables: {
+                    default: {
+                        colors: {
+                            brand: 'var(--brand-primary)',
+                            brandAccent: 'hsl(221, 83%, 60%)',
+                            defaultButtonBackgroundHover: 'hsl(221, 83%, 60%)',
+                            inputText: 'var(--text-primary)',
+                            inputLabelText: 'var(--text-secondary)',
+                            inputBorder: 'var(--border-primary)',
+                            inputBackground: 'var(--bg-primary)',
+                            // ...and so on
+                        },
+                        fonts: {
+                            bodyFontFamily: 'var(--font-primary)',
+                            buttonFontFamily: 'var(--font-primary)',
+                            labelFontFamily: 'var(--font-primary)',
+                        }
+                    },
+                },
+            }}
+            theme="dark" // The base theme to style from, our variables override it
+            providers={['google', 'github']}
+            redirectTo={`${window.location.origin}/dashboard`}
+          />
+        </div>
+      </div>
     </div>
   );
 }

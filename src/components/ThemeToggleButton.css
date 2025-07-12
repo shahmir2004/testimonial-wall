@@ -1,0 +1,49 @@
+/* src/components/ThemeToggleButton.css */
+.theme-toggle-button {
+  /* Positioning and Box Model */
+  display: inline-flex; /* Use flex to perfectly center the icon inside */
+  align-items: center;
+  justify-content: center;
+  width: 44px;  /* Slightly larger for a better click/tap target */
+  height: 44px;
+  padding: 0;
+  
+  /* Appearance */
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary); /* This color will be applied to the SVG stroke */
+  border: 1px solid var(--border-primary);
+  border-radius: 50%; /* Perfect circle */
+  box-shadow: var(--shadow-sm);
+  
+  /* Interactivity */
+  cursor: pointer;
+  outline: none; /* We'll use box-shadow for focus state */
+  
+  /* Animation & Transitions */
+  transition: var(--color-transition), box-shadow var(--transition-speed-fast) ease;
+  overflow: hidden; /* Hide the icons as they animate in/out of the button's bounds */
+}
+
+.theme-toggle-button:hover {
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle-button:focus-visible {
+  /* A clear focus ring for accessibility that works in both themes */
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--brand-primary);
+}
+
+/* The inner div is used for the icon animation */
+.theme-toggle-button > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The SVG icon itself */
+.theme-toggle-button svg {
+  stroke: currentColor; /* The SVG stroke will inherit the button's text color */
+  /* This is what makes the icon theme-aware automatically */
+}

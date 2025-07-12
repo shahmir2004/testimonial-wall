@@ -1,0 +1,116 @@
+/* src/pages/AccountPage.css */
+
+.account-page-container {
+  padding: var(--space-2xl) 0; /* Vertical padding */
+  width: 100%;
+}
+
+.account-page-container .container {
+  max-width: 700px; /* Constrain width for a focused settings page */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl); /* Spacing between cards */
+}
+
+.account-header {
+  text-align: center;
+}
+.account-header h1 {
+  margin-bottom: var(--space-sm);
+  font-size: clamp(2rem, 5vw, 2.8rem); /* Use global heading scale */
+}
+.account-header p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.account-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  transition: var(--color-transition);
+}
+
+.card-header {
+  padding: var(--space-lg) var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  border-bottom: 1px solid var(--border-primary);
+}
+.card-header svg {
+  color: var(--text-secondary);
+}
+.card-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--text-headings);
+}
+
+.account-form {
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.form-status-inline {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-right: auto; /* Push to the left */
+}
+.form-status-inline.success { color: var(--brand-success); }
+.form-status-inline.error { color: var(--brand-error); }
+.form-status-inline.info { color: var(--text-secondary); }
+
+.account-form input[disabled] {
+    background-color: var(--border-primary);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.danger-zone {
+    border-color: rgba(var(--brand-error-rgb, 220, 53, 69), 0.3); /* Use fallback */
+    border-left: 4px solid var(--brand-error);
+}
+.danger-zone .card-header svg {
+    color: var(--brand-error);
+}
+.danger-zone-content {
+    padding: var(--space-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: var(--space-md);
+}
+.danger-zone-content p {
+    color: var(--text-secondary);
+    margin: 0;
+    flex-grow: 1; /* Allow text to take up space */
+}
+.danger-zone-content .btn-secondary {
+    border-color: var(--brand-error);
+    color: var(--brand-error);
+}
+.danger-zone-content .btn-secondary:hover {
+    background-color: var(--brand-error);
+    color: #fff; /* White text on error color */
+    border-color: var(--brand-error);
+}
+
+.page-loading-message { /* For loading state */
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}

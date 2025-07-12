@@ -3,150 +3,137 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import {
-  itemFadeInUpVariants,
-  sectionScrollRevealVariants
-} from '../utils/animationVariants'; // <<--- ADD THIS IMPORT
+import { motion } from 'framer-motion';
+import { itemFadeInUpVariants, staggerContainerVariants } from '../utils/animationVariants'; // Import shared variants
+import './AccountPage.css'; // New styles for this page
+
+// Simple SVG Icons
+const IconUser = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+const IconLogOut = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>;
+
 
 function AccountPage() {
-  const { user, signOut } = useAuth(); // Get user and signOut function from context
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
   const [website, setWebsite] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState(''); // We'll just display this for now
+  const [isUpdating, setIsUpdating] = useState(false);
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
 
-  // Fetch the user's profile data when the component loads
   useEffect(() => {
     const getProfile = async () => {
       if (!user) return;
-
-      setLoading(true);
       try {
-        const { data, error, status } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
-          .select(`username, website_url, avatar_url`)
+          .select(`username, website_url`)
           .eq('id', user.id)
-          .single(); // .single() expects exactly one row, which is correct here
-
-        if (error && status !== 406) {
-          throw error;
-        }
-
+          .single();
+        if (error) throw error;
         if (data) {
           setUsername(data.username || '');
           setWebsite(data.website_url || '');
-          setAvatarUrl(data.avatar_url || '');
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
-        setStatusMessage({ type: 'error', text: 'Error fetching profile data.' });
+        showStatusMessage('Error fetching profile data.', 'error');
       } finally {
         setLoading(false);
       }
     };
-
     getProfile();
-  }, [user]); // Rerun if the user object changes
+  }, [user]);
 
-  // Handle profile updates
+  const showStatusMessage = (text, type = 'info', duration = 4000) => {
+    setStatusMessage({ text, type });
+    setTimeout(() => setStatusMessage({ text: '', type: '' }), duration);
+  };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     if (!user) return;
-
-    setLoading(true);
-    setStatusMessage({ type: 'info', text: 'Updating...' });
-
-    const updates = {
-      // id: user.id,
-      username,
-      website_url: website,
-      updated_at: new Date(),
-    };
-     // --- DEBUGGING ---
-  console.log("Current User ID:", user.id);
-  console.log("Data being sent to upsert:", updates);
-  // --- END DEBUGGING ---
-  // now we are using update directly instead of upsert function
+    setIsUpdating(true);
+    const updates = { id: user.id, username, website_url: website, updated_at: new Date() };
     try {
-      const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id); 
-      if (error) {
-        throw error;
-      }
-      setStatusMessage({ type: 'success', text: 'Profile updated successfully!' });
+      const { error } = await supabase.from('profiles').upsert(updates);
+      if (error) throw error;
+      showStatusMessage('Profile updated successfully!', 'success');
     } catch (error) {
-      console.error('Error updating profile:', error);
-      setStatusMessage({ type: 'error', text: 'Error updating profile. Please try again.' });
+      showStatusMessage(`Error: ${error.message}`, 'error');
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/'); // Redirect to homepage after sign out
+    navigate('/');
   };
 
-
   if (loading) {
-    return <p>Loading account information...</p>;
+    return <div className="page-loading-message">Loading Account...</div>;
   }
 
   return (
-    <div>
-      <h2>Account Settings</h2>
-      <div style={{ margin: '2rem auto', padding: '1.5rem', border: '1px solid #444', borderRadius: '8px', maxWidth: '500px' }}>
-        <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label htmlFor="email" style={{display:'block', marginBottom:'0.5rem'}}>Email</label>
-            <input id="email" type="text" value={user?.email} disabled />
-          </div>
-          <div>
-            <label htmlFor="username" style={{display:'block', marginBottom:'0.5rem'}}>Username</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="website" style={{display:'block', marginBottom:'0.5rem'}}>Website URL</label>
-            <input
-              id="website"
-              type="url"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
-          </div>
-          
-          {/* Display status messages */}
-          {statusMessage.text && (
-            <p style={{ 
-                color: statusMessage.type === 'success' ? 'green' : statusMessage.type === 'error' ? 'red' : 'white'
-            }}>
-                {statusMessage.text}
-            </p>
-          )}
+    <div className="account-page-container">
+      <motion.div
+        className="container"
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemFadeInUpVariants} className="account-header">
+          <h1>Account Settings</h1>
+          <p>Manage your profile information and session.</p>
+        </motion.div>
 
-          <div>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Update Profile'}
-            </button>
+        <motion.div variants={itemFadeInUpVariants} className="account-card">
+          <div className="card-header">
+            <IconUser />
+            <h3>Your Profile</h3>
           </div>
-        </form>
-      </div>
+          <form onSubmit={handleUpdateProfile} className="account-form">
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input id="email" type="text" value={user?.email} disabled title="Email cannot be changed." />
+            </div>
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g., Shahmir Ahmed" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="website">Website URL</label>
+              <input id="website" type="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://your-portfolio.com" />
+            </div>
+            <div className="form-actions">
+                {statusMessage.text && (
+                    <span className={`form-status-inline ${statusMessage.type}`}>
+                        {statusMessage.text}
+                    </span>
+                )}
+              <button type="submit" className="btn btn-primary" disabled={isUpdating}>
+                {isUpdating ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        </motion.div>
+        
+        <motion.div variants={itemFadeInUpVariants} className="account-card danger-zone">
+            <div className="card-header">
+                <IconLogOut />
+                <h3>Session Management</h3>
+            </div>
+            <div className="danger-zone-content">
+                <p>Logging out will end your current session on this device.</p>
+                <button onClick={handleSignOut} className="btn btn-secondary" disabled={isUpdating}>
+                    Sign Out
+                </button>
+            </div>
+        </motion.div>
 
-      <div style={{marginTop: '2rem'}}>
-        <button onClick={handleSignOut} disabled={loading} style={{backgroundColor: '#555'}}>
-          Sign Out
-        </button>
-      </div>
+      </motion.div>
     </div>
   );
 }

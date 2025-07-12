@@ -1,0 +1,44 @@
+/* src/pages/LoginPage.css */
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  padding: 5rem 1.5rem;
+  width: 100%;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px; /* Slightly narrower */
+  background-color: var(--bg-secondary);
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-primary);
+  text-align: center;
+}
+
+.login-title {
+  margin-bottom: 0.5rem;
+  color: var(--text-headings);
+  font-size: 1.8rem; /* Use clamp if needed */
+}
+
+.login-subtitle {
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.auth-form-wrapper {
+  /* This targets the container for Supabase's Auth UI */
+  --colors-brand: var(--brand-primary);
+  --colors-brand-accent: var(--brand-accent);
+  --colors-input-text: var(--text-primary);
+  --colors-input-label-text: var(--text-secondary);
+  --colors-input-border: var(--border-primary);
+  --colors-input-background: var(--bg-primary);
+  --fonts-body: var(--font-primary);
+  --fonts-button: var(--font-primary);
+  --fonts-label: var(--font-primary);
+  text-align: left; /* Align Supabase UI content left */
+}
