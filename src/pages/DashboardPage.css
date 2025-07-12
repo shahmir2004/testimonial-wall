@@ -1,65 +1,175 @@
 /* src/pages/DashboardPage.css */
 
 .dashboard-container {
-  max-width: 800px;
+  max-width: 1000px; /* Wider container for better layout */
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1rem 1.5rem 3rem 1.5rem; /* Add more bottom padding */
+  text-align: left; /* Default to left-align for dashboard content */
 }
 
-.dashboard-container h2, .dashboard-container h3 {
+/* --- Header --- */
+.dashboard-header {
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 1.5rem;
+}
+.dashboard-header h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   color: var(--text-headings);
-  text-align: left;
+  margin: 0;
 }
-.dashboard-container h3 {
-    margin-top: 2.5rem;
-    border-bottom: 1px solid var(--border-primary);
-    padding-bottom: 0.5rem;
+.dashboard-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
 }
 
-/* Status Messages */
-.loading-message, .error-message, .status-message {
-  text-align: center;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
+/* --- Grid Layout for Form and Embed --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column by default */
+  gap: 2rem;
 }
-.error-message { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; }
-.status-message { background-color: rgba(var(--brand-primary-rgb), 0.1); color: var(--brand-primary); }
+@media (min-width: 800px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns on larger screens */
+    align-items: flex-start; /* Align cards to the top */
+  }
+}
 
+/* --- General Card Styling --- */
+.dashboard-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  transition: var(--color-transition);
+}
+.dashboard-card h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  color: var(--text-headings);
+  border-bottom: 1px solid var(--border-secondary);
+  padding-bottom: 0.75rem;
+}
 
-/* Testimonial List & Items */
-.testimonials-list {
+/* Form Styles */
+.form-card form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+}
+.form-group { display: flex; flex-direction: column; }
+.form-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.2);
+}
+.form-group textarea { resize: vertical; }
+
+/* Embed Card Styles */
+.embed-card .embed-description {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.embed-code-wrapper {
+  position: relative;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.embed-code-wrapper:hover {
+  background-color: var(--border-primary);
+}
+.embed-code-wrapper pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+.embed-code-wrapper code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.embed-code-wrapper .copy-icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+.embed-code-wrapper:hover .copy-icon {
+  opacity: 1;
 }
 
+/* --- Testimonial Collection --- */
+.dashboard-collection {
+  margin-top: 3rem;
+}
+.dashboard-collection h3 {
+  font-size: 1.6rem;
+  color: var(--text-headings);
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 0.75rem;
+  margin-bottom: 2rem;
+}
+.testimonials-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
 .testimonial-item {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-primary);
-  border-left: 4px solid var(--brand-accent);
-  padding: 1.5rem;
+  border-left: 5px solid var(--brand-accent);
+  padding: 1.25rem 1.5rem;
   border-radius: 8px;
   transition: var(--color-transition), box-shadow 0.2s ease;
+  box-shadow: 0 2px 5px rgba(var(--shadow-color-rgb), 0.05);
 }
 .testimonial-item.unpublished {
   border-left-color: var(--text-secondary);
-  opacity: 0.7;
+  opacity: 0.65;
 }
-
+.testimonial-item:hover {
+  box-shadow: 0 5px 15px rgba(var(--shadow-color-rgb), 0.1);
+}
 .testimonial-item-text {
   font-style: italic;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+  font-size: 1.05rem;
   color: var(--text-primary);
 }
-
 .testimonial-item-author {
   font-weight: 600;
   color: var(--text-secondary);
   text-align: right;
+  font-size: 0.95rem;
 }
-
 .testimonial-item-footer {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -70,25 +180,50 @@
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
-
-.testimonial-item-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
+.testimonial-item-actions { display: flex; gap: 0.5rem; align-items: center; }
 .btn-icon {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  transition: background-color 0.2s ease;
+  padding: 0.3rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
   color: var(--text-secondary);
 }
-.btn-icon:hover { background-color: rgba(var(--text-primary-rgb), 0.1); }
+.btn-icon:hover { background-color: rgba(var(--text-primary-rgb), 0.1); color: var(--text-primary); }
 .btn-icon.btn-delete:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.1); }
 .btn-icon.btn-publish:hover { color: #28a745; background-color: rgba(40, 167, 69, 0.1); }
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--bg-secondary);
+  border: 2px dashed var(--border-primary);
+  border-radius: 12px;
+}
+
+/* --- Edit Modal & Toast --- */
+/* The styles from the previous response for .modal-backdrop, .modal-content etc. can be used here. */
+/* Toast Message */
+.toast-message {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    color: var(--text-on-brand-bg);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 2000;
+    font-weight: 500;
+}
+.toast-message.success { background-color: #28a745; }
+.toast-message.error { background-color: #dc3545; }
+.toast-message.info { background-color: var(--brand-primary); }
 
 
 /* Edit Modal Styles */
@@ -148,14 +283,4 @@
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 1rem;
-}
-
-/* Use global .btn-primary, but can define .btn-secondary */
-.btn-secondary {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-primary);
-}
-.btn-secondary:hover {
-    background-color: var(--border-primary);
 }

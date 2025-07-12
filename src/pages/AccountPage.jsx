@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import {
+  itemFadeInUpVariants,
+  sectionScrollRevealVariants
+} from '../utils/animationVariants'; // <<--- ADD THIS IMPORT
 
 function AccountPage() {
   const { user, signOut } = useAuth(); // Get user and signOut function from context
@@ -65,11 +69,12 @@ function AccountPage() {
   console.log("Current User ID:", user.id);
   console.log("Data being sent to upsert:", updates);
   // --- END DEBUGGING ---
+  // now we are using update directly instead of upsert function
     try {
       const { error } = await supabase
       .from('profiles')
       .update(updates)
-      .eq('id', user.id); // Specify which row to update with .eq()
+      .eq('id', user.id); 
       if (error) {
         throw error;
       }
