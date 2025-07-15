@@ -1,44 +1,123 @@
-/* src/pages/LoginPage.css */
-.login-page-container {
+/* src/pages/LoginPage.css - Revamped for Custom Form */
+
+.login-page-wrapper {
   display: flex;
   justify-content: center;
-  padding: 5rem 1.5rem;
+  align-items: flex-start; /* So card is not squished vertically */
+  padding: 5rem 1rem;
+  min-height: 80vh; /* Ensure there's space */
   width: 100%;
 }
 
-.login-card {
+.login-card-revamped {
   width: 100%;
-  max-width: 420px; /* Slightly narrower */
+  max-width: 420px;
   background-color: var(--bg-secondary);
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
+  padding: 2rem 2.5rem 2.5rem;
+  border-radius: 16px; /* Softer radius */
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-primary);
+}
+
+.login-header {
   text-align: center;
-}
-
-.login-title {
-  margin-bottom: 0.5rem;
-  color: var(--text-headings);
-  font-size: 1.8rem; /* Use clamp if needed */
-}
-
-.login-subtitle {
   margin-bottom: 2rem;
+}
+
+.login-header h2 {
+  font-size: 1.75rem;
+  color: var(--text-headings);
+  margin-bottom: 0.5rem;
+}
+
+.login-header p {
   color: var(--text-secondary);
   font-size: 1rem;
 }
 
-.auth-form-wrapper {
-  /* This targets the container for Supabase's Auth UI */
-  --colors-brand: var(--brand-primary);
-  --colors-brand-accent: var(--brand-accent);
-  --colors-input-text: var(--text-primary);
-  --colors-input-label-text: var(--text-secondary);
-  --colors-input-border: var(--border-primary);
-  --colors-input-background: var(--bg-primary);
-  --fonts-body: var(--font-primary);
-  --fonts-button: var(--font-primary);
-  --fonts-label: var(--font-primary);
-  text-align: left; /* Align Supabase UI content left */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Use global .form-group styles from index.css */
+
+.forgot-password-link {
+    text-align: right;
+    margin-top: -0.75rem; /* Pull it up closer to the password field */
+    margin-bottom: 0.25rem;
+}
+
+.forgot-password-link button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.85rem;
+    color: var(--text-accent);
+    cursor: pointer;
+    font-family: var(--font-primary);
+}
+.forgot-password-link button:hover {
+    text-decoration: underline;
+}
+
+.login-form .btn-primary {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.login-form .btn-primary:disabled {
+    background-color: var(--border-secondary);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.auth-message {
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid transparent;
+  overflow: hidden;
+}
+.auth-message.info, .auth-message.success {
+  background-color: rgba(var(--brand-success-rgb, 40, 167, 69), 0.1);
+  color: var(--brand-success);
+  border-color: rgba(var(--brand-success-rgb, 40, 167, 69), 0.3);
+}
+.auth-message.error {
+  background-color: rgba(var(--brand-error-rgb), 0.1);
+  color: var(--brand-error);
+  border-color: rgba(var(--brand-error-rgb), 0.3);
+}
+
+.auth-toggle {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-primary);
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: var(--text-accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.3rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+.toggle-button:hover {
+  text-decoration: underline;
 }
