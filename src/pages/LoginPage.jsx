@@ -69,19 +69,20 @@ function LoginPage() {
       }
     } else if (view === 'forgot_password') {
         // --- FORGOT PASSWORD LOGIC ---
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            // This needs to be a page you create later for users to enter their new password
-            redirectTo: `${window.location.origin}/update-password`,
-        });
+         const { data, error } = await supabase.functions.invoke('handle-password-reset', {
+                body: { email },
+            });
 
-        if (error) {
-            setMessage({ type: 'error', text: error.message });
-        } else {
-            setMessage({ type: 'success', text: 'Password reset link sent! Please check your email.' });
+            if (error) {
+                setMessage({ type: 'error', text: "An unexpected error occurred. Please try again." });
+                console.error("Password reset error:", error);
+            } else {
+                // We always show a success/info message to prevent telling attackers if an email exists.
+                setMessage({ type: 'success', text: data.message });
+            }
         }
-    }
-    setLoading(false);
-  };
+        setLoading(false);
+    };
 
   // Helper function to switch views and clear any existing messages
   const switchView = (newView) => {

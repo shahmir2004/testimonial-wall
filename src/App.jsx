@@ -11,7 +11,7 @@ import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
-
+import UpdatePasswordPage from './pages/UpdatePasswordPage.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 
@@ -90,6 +90,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<PageLayout><HomePage /></PageLayout>} />
                 <Route path="/login" element={<PageLayout><LoginPage /></PageLayout>} />
+                  <Route path="/update-password" element={<PageLayout><UpdatePasswordPage /></PageLayout>} />
                 <Route path="/dashboard" element={<ProtectedRoute><PageLayout><DashboardPage /></PageLayout></ProtectedRoute>} />
                 <Route path="/account" element={<ProtectedRoute><PageLayout><AccountPage /></PageLayout></ProtectedRoute>} />
               </Routes>
