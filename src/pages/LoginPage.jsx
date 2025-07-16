@@ -28,9 +28,16 @@ function LoginPage() {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    if (view === 'sign_up') {
-      // --- SIMPLE CLIENT-SIDE SIGNUP ---
-      const { data, error } = await supabase.auth.signUp({ email, password });
+     if (view === 'sign_up') {
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    // This tells Supabase where to send the user AFTER they click the confirmation link in the email.
+                    // It will land them on the homepage, and our Auth listener will redirect to dashboard.
+                    emailRedirectTo: window.location.origin 
+                }
+            });
 
       if (error) {
         // This will catch real errors, but not "User already exists"
@@ -54,7 +61,9 @@ function LoginPage() {
     } else if (view === 'forgot_password') {
         // --- STANDARD PASSWORD RESET ---
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/update-password`,
+                // This tells Supabase where the user should be redirected to set their new password.
+                // It MUST match a route in your React app.
+                redirectTo: `${window.location.origin}/update-password`,
         });
 
         if (error) {
