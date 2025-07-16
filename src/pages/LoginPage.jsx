@@ -4,7 +4,6 @@ import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { itemFadeInUpVariants } from '../utils/animationVariants'; // Assuming you have this shared file
 import './LoginPage.css';
 
 function LoginPage() {
@@ -27,64 +26,47 @@ function LoginPage() {
   const handleAuthAction = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: '', text: '' }); // Clear previous messages
+    setMessage({ type: '', text: '' });
 
     if (view === 'sign_up') {
-      // --- SIGN UP LOGIC ---
-      // Call our custom Supabase Edge Function to handle signup
-      const { data, error } = await supabase.functions.invoke('handle-signup', {
-        body: { email, password },
-      });
+      // --- SIMPLE CLIENT-SIDE SIGNUP ---
+      const { data, error } = await supabase.auth.signUp({ email, password });
 
       if (error) {
-        // This block catches errors from the function invocation itself (e.g., network error)
-        // AND errors we return from the function (like "User already exists").
-        
-        // Check if our custom error message is nested in the context
-        if (error.context && error.context.json && error.context.json.error) {
-          setMessage({ type: 'error', text: error.context.json.error });
-        } else {
-          // Fallback for more generic invocation errors
-          setMessage({ type: 'error', text: 'This user already exists.' });
-        }
-        console.error("Edge Function invocation error:", error);
-      } else {
-        // This block handles the successful 200 OK response from our Edge Function
-        setMessage({ type: 'success', text: data.message });
-        setView('sign_in'); // Switch to sign-in view after successful signup prompt
-      }
-    } else if (view === 'sign_in') {
-      // --- SIGN IN LOGIC ---
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-      
-      if (error) {
+        // This will catch real errors, but not "User already exists"
         setMessage({ type: 'error', text: error.message });
       } else {
-        // Successful sign-in will be caught by the onAuthStateChange listener in AuthContext,
-        // but we can also navigate immediately for a faster user experience.
+        // Supabase returns a user object even if it exists, to prevent enumeration.
+        // We will show a generic success message that covers both cases.
+        setMessage({ type: 'success', text: 'If an account for this email is new, a confirmation link has been sent. If you already have an account, you will receive a password reset link instead.' });
+        setView('sign_in'); // Guide them back to the sign-in page
+      }
+
+    } else if (view === 'sign_in') {
+      // --- STANDARD SIGN IN ---
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        setMessage({ type: 'error', text: error.message }); // e.g., "Invalid login credentials"
+      } else {
         navigate('/dashboard');
       }
     } else if (view === 'forgot_password') {
-        // --- FORGOT PASSWORD LOGIC ---
-         const { data, error } = await supabase.functions.invoke('handle-password-reset', {
-                body: { email },
-            });
+        // --- STANDARD PASSWORD RESET ---
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/update-password`,
+        });
 
-            if (error) {
-                setMessage({ type: 'error', text: "An unexpected error occurred. Please try again." });
-                console.error("Password reset error:", error);
-            } else {
-                // We always show a success/info message to prevent telling attackers if an email exists.
-                setMessage({ type: 'success', text: data.message });
-            }
+        if (error) {
+            setMessage({ type: 'error', text: error.message });
+        } else {
+            // Always show a generic success message
+            setMessage({ type: 'success', text: 'If an account with this email exists, a password reset link has been sent.' });
         }
-        setLoading(false);
-    };
+    }
+    setLoading(false);
+  };
 
-  // Helper function to switch views and clear any existing messages
   const switchView = (newView) => {
     setView(newView);
     setMessage({ type: '', text: '' });
@@ -94,7 +76,7 @@ function LoginPage() {
     <div className="login-page-wrapper">
       <motion.div
         className="login-card"
-        key={view} // Force re-render/animation on view change
+        key={view}
         initial={{ opacity: 0, y: -20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -125,12 +107,7 @@ function LoginPage() {
 
           <AnimatePresence>
             {message.text && (
-              <motion.p
-                className={`auth-message ${message.type}`}
-                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                animate={{ opacity: 1, height: 'auto', marginTop: '1rem' }}
-                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              >
+              <motion.p className={`auth-message ${message.type}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 {message.text}
               </motion.p>
             )}
@@ -142,15 +119,9 @@ function LoginPage() {
         </form>
 
         <div className="auth-toggle">
-            {view === 'sign_in' && (
-                <>Don't have an account? <button onClick={() => switchView('sign_up')} className="toggle-button">Sign Up</button></>
-            )}
-            {view === 'sign_up' && (
-                <>Already have an account? <button onClick={() => switchView('sign_in')} className="toggle-button">Sign In</button></>
-            )}
-            {view === 'forgot_password' && (
-                <>Remembered your password? <button onClick={() => switchView('sign_in')} className="toggle-button">Sign In</button></>
-            )}
+            {view === 'sign_in' && (<>Don't have an account? <button onClick={() => switchView('sign_up')} className="toggle-button">Sign Up</button></>)}
+            {view === 'sign_up' && (<>Already have an account? <button onClick={() => switchView('sign_in')} className="toggle-button">Sign In</button></>)}
+            {view === 'forgot_password' && (<>Remembered your password? <button onClick={() => switchView('sign_in')} className="toggle-button">Sign In</button></>)}
         </div>
       </motion.div>
     </div>
