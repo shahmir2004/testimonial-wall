@@ -206,3 +206,17 @@
   color: var(--text-primary);
   cursor: pointer;
 }
+.btn-icon.btn-ai:hover {
+    color: #8B5CF6; /* A nice purple for AI/Magic */
+    background-color: rgba(139, 92, 246, 0.1);
+}
+.btn-icon:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: transparent !important; /* Ensure no hover bg on disabled */
+}
+
+/* Style for the modal when reviewing an AI summary */
+.modal-content h3:has(+ .ai-review-text) {
+    /* More specific styling if needed */
+}
