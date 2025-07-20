@@ -82,29 +82,51 @@ function DashboardPage() {
   const handleDeleteTestimonial = async (id) => { if (!window.confirm('Are you sure?')) return; const originalTestimonials = testimonials; setTestimonials(testimonials.filter(t => t.id !== id)); const { error } = await supabase.from('testimonials').delete().eq('id', id); if (error) { showStatusMessage(`Error: ${error.message}`, 'error'); setTestimonials(originalTestimonials); } else { showStatusMessage('Testimonial deleted.', 'success'); } };
   const handlePublishToggle = async (testimonial) => { const newStatus = !testimonial.is_published; const originalTestimonials = testimonials; setTestimonials(testimonials.map(t => t.id === testimonial.id ? { ...t, is_published: newStatus } : t)); const { error } = await supabase.from('testimonials').update({ is_published: newStatus }).eq('id', testimonial.id); if (error) { showStatusMessage(`Error: ${error.message}`, 'error'); setTestimonials(originalTestimonials); } else { showStatusMessage(`Status changed to ${newStatus ? 'Published' : 'Unpublished'}`, 'success'); } };
 
-  const handleAISummarize = async (testimonialToSummarize) => {
+    const handleAISummarize = async (testimonialToSummarize) => {
     setIsSummarizing(testimonialToSummarize.id);
     showStatusMessage('✨ Asking the AI for a summary...', 'info', 10000);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Authentication error: Please log in again.");
 
-      const { data, error } = await supabase.functions.invoke('ai/summarize', {
-        headers: { 'Authorization': `Bearer ${session.accessToken}` },
-        body: { text: testimonialToSummarize.testimonial_text },
+    try {
+      // 1. Get the current session to retrieve the authentication token.
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        throw new Error("Authentication error: Could not get user session.");
+      }
+      
+      // --- 2. Use a standard `fetch` call to our Vercel API endpoint ---
+      // The API URL is relative to our own domain.
+      const apiUrl = '/api/ai/summarize';
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.accessToken}`, // Pass the user's token
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: testimonialToSummarize.testimonial_text }),
       });
 
-      if (error) throw error;
+      // 3. Handle the response
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // If the response is not a 2xx, throw an error with the message from our function
+        throw new Error(responseData.error || `Request failed with status ${response.status}`);
+      }
       
-      setEditingTestimonial({ ...testimonialToSummarize, aiSummary: data.summary });
+      // 4. On success, open the edit modal with the summary pre-filled
+      setEditingTestimonial({ ...testimonialToSummarize, aiSummary: responseData.summary });
 
     } catch (error) {
       console.error("AI Summarize Error:", error);
-      const errorMessage = error.context?.json?.error || error.message || 'Failed to get AI summary.';
-      showStatusMessage(errorMessage, 'error');
+      // The error message from the thrown error will be displayed
+      showStatusMessage(error.message || 'Failed to get AI summary.', 'error');
     } finally {
       setIsSummarizing(null);
-      if (statusMessage.text.includes('Asking the AI')) { setStatusMessage({ text: '', type: '' }); }
+      // Clear the "Asking AI..." message if it's still showing
+      if (statusMessage.text.includes('Asking the AI')) {
+        setStatusMessage({ text: '', type: '' });
+      }
     }
   };
 
