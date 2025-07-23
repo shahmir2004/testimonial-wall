@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "api/ai/summarize.js": {
+      "maxDuration": 25
+    }
+  },
+  "version": 2
+  
+}
