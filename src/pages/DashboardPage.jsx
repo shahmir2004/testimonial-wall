@@ -82,48 +82,52 @@ function DashboardPage() {
   const handleDeleteTestimonial = async (id) => { if (!window.confirm('Are you sure?')) return; const originalTestimonials = testimonials; setTestimonials(testimonials.filter(t => t.id !== id)); const { error } = await supabase.from('testimonials').delete().eq('id', id); if (error) { showStatusMessage(`Error: ${error.message}`, 'error'); setTestimonials(originalTestimonials); } else { showStatusMessage('Testimonial deleted.', 'success'); } };
   const handlePublishToggle = async (testimonial) => { const newStatus = !testimonial.is_published; const originalTestimonials = testimonials; setTestimonials(testimonials.map(t => t.id === testimonial.id ? { ...t, is_published: newStatus } : t)); const { error } = await supabase.from('testimonials').update({ is_published: newStatus }).eq('id', testimonial.id); if (error) { showStatusMessage(`Error: ${error.message}`, 'error'); setTestimonials(originalTestimonials); } else { showStatusMessage(`Status changed to ${newStatus ? 'Published' : 'Unpublished'}`, 'success'); } };
 
-    const handleAISummarize = async (testimonialToSummarize) => {
+      const handleAISummarize = async (testimonialToSummarize) => {
     setIsSummarizing(testimonialToSummarize.id);
     showStatusMessage('✨ Asking the AI for a summary...', 'info', 10000);
 
     try {
-      // 1. Get the current session to retrieve the authentication token.
+      // --- STEP 1: CORRECTLY AWAIT THE SESSION ---
+      // This is an asynchronous call and MUST be awaited.
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
-        throw new Error("Authentication error: Could not get user session.");
+
+      // --- STEP 2: VALIDATE THE SESSION AND TOKEN ---
+      if (sessionError) {
+        throw new Error(`Authentication error: ${sessionError.message}`);
       }
-      
-      // --- 2. Use a standard `fetch` call to our Vercel API endpoint ---
-      // The API URL is relative to our own domain.
-      const apiUrl = '/api/ai/summarize';
+      if (!session) {
+        throw new Error("Authentication error: You are not logged in. Please log in again.");
+      }
+      // This check prevents sending "Bearer undefined"
+      if (!session.access_token) {
+        throw new Error("Authentication error: Invalid session, no access token found.");
+      }
+
+      const apiUrl = '/api/ai/summarize'; // Use relative path for same-origin requests
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.accessToken}`, // Pass the user's token
+          // --- STEP 3: USE THE CORRECT TOKEN ---
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ text: testimonialToSummarize.testimonial_text }),
       });
 
-      // 3. Handle the response
       const responseData = await response.json();
 
       if (!response.ok) {
-        // If the response is not a 2xx, throw an error with the message from our function
         throw new Error(responseData.error || `Request failed with status ${response.status}`);
       }
       
-      // 4. On success, open the edit modal with the summary pre-filled
       setEditingTestimonial({ ...testimonialToSummarize, aiSummary: responseData.summary });
 
     } catch (error) {
       console.error("AI Summarize Error:", error);
-      // The error message from the thrown error will be displayed
       showStatusMessage(error.message || 'Failed to get AI summary.', 'error');
     } finally {
       setIsSummarizing(null);
-      // Clear the "Asking AI..." message if it's still showing
       if (statusMessage.text.includes('Asking the AI')) {
         setStatusMessage({ text: '', type: '' });
       }
