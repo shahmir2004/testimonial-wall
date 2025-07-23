@@ -2,10 +2,8 @@
   "functions": {
     "api/ai/summarize.js": {
       "maxDuration": 45
-    },
-    "api/contact.js": {
-      "maxDuration": 20
     }
+    
   },
   "rewrites": [
     {
