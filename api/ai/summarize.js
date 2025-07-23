@@ -24,12 +24,14 @@ export default async function handler(req, res) {
 
   try {
     // --- LOOK FOR UNIQUE TSW_ PREFIXED VARIABLES ---
-    const apiKey = process.env.TSW_OPENAI_API_KEY;
+    const hfApiKey = process.env.TSW_HUGGINGFACE_API_KEY;
     const supabaseUrl = process.env.TSW_SUPABASE_URL;
     const supabaseKey = process.env.TSW_SUPABASE_ANON_KEY;
 
     // Explicitly check each one for clear debugging
-    if (!apiKey) throw new Error('Server Config Error: Missing TSW_OPENAI_API_KEY.');
+   if (!hfApiKey) {
+      throw new Error('Server Config Error: Missing Hugging Face API Key.');
+    }
     if (!supabaseUrl) throw new Error('Server Config Error: Missing TSW_SUPABASE_URL.');
     if (!supabaseKey) throw new Error('Server Config Error: Missing TSW_SUPABASE_ANON_KEY.');
 
@@ -60,29 +62,35 @@ export default async function handler(req, res) {
     // }
 
     // 4. Validate the incoming request body from the frontend.
-    const { text } = req.body;
-    if (!text || typeof text !== 'string' || text.trim().length < 10) {
-      return new Response(JSON.stringify({ error: 'A valid testimonial text (at least 10 characters) is required.' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+     const response = await fetch(
+      "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+      {
+        headers: {
+          "Authorization": `Bearer ${hfApiKey}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          inputs: text,
+          parameters: { // Optional: control the output
+            min_length: 10,
+            max_length: 50,
+          }
+        }),
+      }
+    );
+    
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to get summary from Hugging Face.');
     }
-    
-    // 5. Initialize the OpenAI client and make the API call.
-    const openai = new OpenAI({ apiKey });
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a marketing assistant. Summarize a customer testimonial into a single, punchy, and positive sentence. Focus on the core benefit or emotion. Do not add any extra text or quotation marks, just the summarized sentence." },
-        { role: "user", content: `Please summarize this testimonial: "${text}"` }
-      ],
-      temperature: 0.7,
-      max_tokens: 60, // Limit output to prevent overly long responses
-    });
-    const summary = completion.choices[0].message.content.trim();
-    
-    // 6. Return the successful summary to the frontend.
+
+    const summary = result[0].summary_text; // The structure of the response
+
     return new Response(JSON.stringify({ summary }), {
-      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
