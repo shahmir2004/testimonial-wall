@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/ai/summarize.js": {
+    "api/ai/*.js": {
       "maxDuration": 45
     }
   },
