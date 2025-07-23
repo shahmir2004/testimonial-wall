@@ -84,7 +84,7 @@ function DashboardPage() {
 
       const handleAISummarize = async (testimonialToSummarize) => {
     setIsSummarizing(testimonialToSummarize.id);
-    showStatusMessage('✨ Asking the AI for a summary...', 'info', 10000);
+    showStatusMessage('✨ Waking up the AI... This can take up to 30 seconds on the first try.', 'info', 40000);
 
     try {
       // --- STEP 1: CORRECTLY AWAIT THE SESSION ---
@@ -120,6 +120,8 @@ function DashboardPage() {
       if (!response.ok) {
         throw new Error(responseData.error || `Request failed with status ${response.status}`);
       }
+      setStatusMessage({ text: '', type: '' });
+      
       
       setEditingTestimonial({ ...testimonialToSummarize, aiSummary: responseData.summary });
 
