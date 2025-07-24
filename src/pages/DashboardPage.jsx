@@ -103,13 +103,13 @@ function DashboardPage() {
         throw new Error("Authentication error: Invalid session, no access token found.");
       }
 
-      const apiUrl = '/api/ai/summarize-public'; // Use relative path for same-origin requests
+       const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/api/summarize`; // Use relative path for same-origin requests
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           // --- STEP 3: USE THE CORRECT TOKEN ---
-          // 'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ text: testimonialToSummarize.testimonial_text }),

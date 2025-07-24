@@ -1,9 +1,10 @@
 {
-  "functions": {
-    "api/ai/*.js": {
-      "maxDuration": 45
+  "rewrites": [
+    {
+      "source": "/((?!.*\\..*).*)",
+      "destination": "/index.html"
     }
-  },
+  ],
   "version": 2
   
 }
