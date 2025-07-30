@@ -220,3 +220,133 @@
 .modal-content h3:has(+ .ai-review-text) {
     /* More specific styling if needed */
 }
+
+
+.customizer-options-revamped {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to single column */
+  gap: var(--space-xl);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+@media (min-width: 600px) {
+  .customizer-options-revamped {
+    grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+  }
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.option-group.full-width {
+  grid-column: 1 / -1; /* Make an option span the full width of the grid */
+}
+
+.option-group > label {
+  /* This is the main label for a group like "Theme" or "Accent Color" */
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+/* --- Theme Selector Buttons --- */
+.theme-selector {
+  display: flex;
+  background-color: var(--border-primary);
+  border-radius: 7px;
+  padding: 4px;
+  width: 100%;
+  border: 1px solid var(--border-primary);
+}
+
+.theme-option {
+  flex: 1;
+  padding: var(--space-sm) 0;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-color: transparent;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast) ease;
+}
+
+.theme-option.active {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Color Palette Swatches --- */
+.color-palette {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 4px; /* Align with theme selector height */
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease, border-color var(--transition-fast) ease, box-shadow var(--transition-fast);
+  box-shadow: 0 0 0 1px rgba(var(--shadow-color-rgb), 0.1) inset; /* Subtle inner shadow */
+}
+
+.color-swatch:hover {
+  transform: scale(1.1);
+}
+
+.color-swatch.active {
+  border-color: var(--bg-secondary); /* Inner ring to separate from outline */
+  box-shadow: 0 0 0 3px var(--brand-primary); /* Outer active ring */
+}
+
+/* --- Custom Checkbox Styles --- */
+.checkbox-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.custom-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast) ease;
+  border: 1px solid transparent;
+}
+
+.custom-checkbox-group:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--border-primary);
+}
+
+.custom-checkbox-group input[type="checkbox"] {
+  /* Using accent-color from index.css is the modern way */
+  accent-color: var(--brand-primary);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin: 0; /* Reset margin */
+}
+
+.custom-checkbox-group span {
+  font-weight: 500;
+  color: var(--text-primary);
+  user-select: none; /* Prevent text selection when clicking label */
+}

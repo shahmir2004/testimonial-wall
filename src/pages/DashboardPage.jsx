@@ -32,26 +32,105 @@ const EditModal = ({ testimonial, onSave, onCancel, summary }) => {
 };
 
 // --- WidgetCustomizer Component ---
+// --- WidgetCustomizer Component (Revamped with Custom Controls) ---
 const WidgetCustomizer = ({ userId, showStatusMessage }) => {
   const [theme, setTheme] = useState('light');
-  const [accentColor, setAccentColor] = useState('#005DFF');
+  
+  // 1. Define a curated palette of professional, accessible colors
+  const accentColorPalette = [
+    { name: 'Brand Blue', value: '#005DFF' },
+    { name: 'Emerald Green', value: '#10B981' },
+    { name: 'Indigo Purple', value: '#6366F1' },
+    { name: 'Crimson Red', value: '#DC2626' },
+    { name: 'Amber Orange', value: '#F59E0B' },
+    { name: 'Slate Grey', value: '#64748B' },
+  ];
+  
+  const [accentColor, setAccentColor] = useState(accentColorPalette[0].value);
   const [showAvatars, setShowAvatars] = useState(true);
   const [showTitles, setShowTitles] = useState(true);
-  const embedCode = `<div id="testimonial-wall-container" data-user-id="${userId || 'YOUR_USER_ID'}" data-theme="${theme}" data-accent-color="${accentColor}" data-show-avatars="${showAvatars}" data-show-titles="${showTitles}"></div>\n<script src="${window.location.origin}/testimonial-widget.js" defer></script>`;
-  const copyEmbedCode = () => { const flatCode = embedCode.replace(/\n\s+/g, ' ').replace(/\n/g, ''); navigator.clipboard.writeText(flatCode); showStatusMessage('Embed code copied!', 'success'); };
+
+  const embedCode = `<div id="testimonial-wall-container"
+  data-user-id="${userId || 'YOUR_USER_ID'}"
+  data-theme="${theme}"
+  data-accent-color="${accentColor}"
+  data-show-avatars="${showAvatars}"
+  data-show-titles="${showTitles}"
+></div>
+<script src="${window.location.origin}/testimonial-widget.js" defer></script>`;
+
+  const copyEmbedCode = () => {
+    const flatCode = embedCode.replace(/\n\s+/g, ' ').replace(/\n/g,'');
+    navigator.clipboard.writeText(flatCode);
+    showStatusMessage('Embed code copied!', 'success');
+  };
+
   return (
     <div className="dashboard-card embed-card">
       <h3>Embed Your Wall</h3>
       <div className="card-content">
         <p className="embed-description">Customize your widget's appearance. The code below will update automatically.</p>
-        <div className="customizer-options">
-          <div className="form-group"><label htmlFor="theme">Theme</label><select id="theme" value={theme} onChange={(e) => setTheme(e.target.value)}><option value="light">Light</option><option value="dark">Dark</option></select></div>
-          <div className="form-group"><label htmlFor="accentColor">Accent Color</label><input id="accentColor" type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} /></div>
-          <div className="form-group checkbox-group"><input id="showAvatars" type="checkbox" checked={showAvatars} onChange={(e) => setShowAvatars(e.target.checked)} /><label htmlFor="showAvatars">Show Avatars</label></div>
-          <div className="form-group checkbox-group"><input id="showTitles" type="checkbox" checked={showTitles} onChange={(e) => setShowTitles(e.target.checked)} /><label htmlFor="showTitles">Show Author Titles</label></div>
+        
+        {/* --- NEW, CUSTOM STYLED CUSTOMIZER --- */}
+        <div className="customizer-options-revamped">
+          
+          <div className="option-group">
+            <label>Theme</label>
+            <div className="theme-selector">
+              <button
+                type="button" // Important for buttons in a form context
+                className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                onClick={() => setTheme('light')}
+              >
+                Light
+              </button>
+              <button
+                type="button"
+                className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                onClick={() => setTheme('dark')}
+              >
+                Dark
+              </button>
+            </div>
+          </div>
+
+          <div className="option-group">
+            <label>Accent Color</label>
+            <div className="color-palette">
+              {accentColorPalette.map(color => (
+                <button
+                  key={color.name}
+                  type="button"
+                  className={`color-swatch ${accentColor === color.value ? 'active' : ''}`}
+                  style={{ backgroundColor: color.value }}
+                  title={color.name}
+                  onClick={() => setAccentColor(color.value)}
+                  aria-label={`Set accent color to ${color.name}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="option-group full-width">
+            <label>Display Options</label>
+            <div className="checkbox-options-container">
+              <label htmlFor="showAvatars" className="custom-checkbox-group">
+                <input id="showAvatars" type="checkbox" checked={showAvatars} onChange={(e) => setShowAvatars(e.target.checked)} />
+                <span>Show Avatars</span>
+              </label>
+              <label htmlFor="showTitles" className="custom-checkbox-group">
+                <input id="showTitles" type="checkbox" checked={showTitles} onChange={(e) => setShowTitles(e.target.checked)} />
+                <span>Show Author Titles</span>
+              </label>
+            </div>
+          </div>
         </div>
+        
         <div className="embed-code-block" onClick={copyEmbedCode} title="Click to copy">
-          <div className="embed-code-header"><span>HTML Embed Code</span><button className="copy-button"><IconCopy /> Copy</button></div>
+          <div className="embed-code-header">
+            <span>HTML Embed Code</span>
+            <button className="copy-button"><IconCopy /> Copy</button>
+          </div>
           <pre><code>{embedCode}</code></pre>
         </div>
       </div>
