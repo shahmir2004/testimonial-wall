@@ -12,6 +12,8 @@ import LoginPage from './pages/LoginPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import UpdatePasswordPage from './pages/UpdatePasswordPage.jsx';
+import PricingPage from './pages/PricingPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 
@@ -38,6 +40,7 @@ const Header = () => {
           Testimonial Wall
         </Link>
         <nav className="main-nav">
+          <NavLink to="/pricing" className="nav-link">Pricing</NavLink>
           {user ? (
             <>
               <NavLink to="/dashboard" className="nav-link">Dashboard</NavLink>
@@ -46,7 +49,10 @@ const Header = () => {
               <ThemeToggleButton />
             </>
           ) : (
-            <NavLink to="/login" className="nav-link btn btn-primary">Login / Sign Up</NavLink>
+            <>
+              <NavLink to="/login" className="nav-link btn btn-primary">Login / Sign Up</NavLink>
+              <ThemeToggleButton />
+            </>
           )}
         </nav>
       </div>
@@ -57,7 +63,12 @@ const Header = () => {
 const Footer = () => (
   <footer className="main-footer">
     <div className="container footer-container">
-      <p>© {new Date().getFullYear()} Testimonial Wall by Shahmir Ahmed. All rights reserved.</p>
+      <div className="footer-links">
+        <Link to="/contact">Contact</Link>
+        {/* Add Privacy Policy & Terms of Service links here later */}
+        <a href="https://shahmir-ahmed.vercel.app" target="_blank" rel="noopener noreferrer">Created by Shahmir Ahmed</a>
+      </div>
+      <p>© {new Date().getFullYear()} Testimonial Wall. All rights reserved.</p>
     </div>
   </footer>
 );
@@ -89,8 +100,10 @@ function App() {
           <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={<PageLayout><HomePage /></PageLayout>} />
+                <Route path="/pricing" element={<PageLayout><PricingPage /></PageLayout>} />
                 <Route path="/login" element={<PageLayout><LoginPage /></PageLayout>} />
                 <Route path="/update-password" element={<PageLayout><UpdatePasswordPage /></PageLayout>} />
+                 <Route path="/contact" element={<PageLayout><ContactPage /></PageLayout>} />
                 <Route path="/dashboard" element={<ProtectedRoute><PageLayout><DashboardPage /></PageLayout></ProtectedRoute>} />
                 <Route path="/account" element={<ProtectedRoute><PageLayout><AccountPage /></PageLayout></ProtectedRoute>} />
               </Routes>

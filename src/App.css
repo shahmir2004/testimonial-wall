@@ -88,5 +88,18 @@ body.dark-mode .nav-link.btn:hover { color: var(--text-primary); }
   margin-top: var(--space-3xl);
   transition: var(--color-transition);
 }
-
-.footer-container { text-align: center; color: var(--text-secondary); font-size: 0.9rem; }
+.footer-container { text-align: center; }
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+.footer-links a {
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition-fast) ease;
+}
+.footer-links a:hover { color: var(--text-accent); text-decoration: none; }
+.footer-container p { color: var(--text-secondary); font-size: 0.9rem; }

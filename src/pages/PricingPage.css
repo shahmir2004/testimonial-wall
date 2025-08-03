@@ -1,0 +1,149 @@
+/* src/pages/PricingPage.css */
+
+.pricing-page-wrapper {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+  width: 100%;
+}
+
+.pricing-container {
+  max-width: 900px; /* Constrain width for better readability */
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+.pricing-header h1 {
+  margin-bottom: var(--space-md);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+}
+.pricing-header p {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 40ch;
+  margin: 0 auto;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column on mobile */
+  gap: var(--space-2xl);
+  align-items: center; /* Vertically align cards */
+}
+
+@media (min-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr 1fr; /* Two columns on desktop */
+  }
+}
+
+.pricing-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Make cards in a row equal height */
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  position: relative;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Highlighted "Pro" Card */
+.pricing-card.featured {
+  border-color: var(--brand-primary);
+  transform: scale(1.03); /* Make it slightly larger */
+}
+.pricing-card.featured:hover {
+  transform: scale(1.05) translateY(-5px); /* Enhance hover effect */
+}
+.featured-badge {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--brand-primary);
+  color: var(--text-on-brand-bg);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricing-card .card-header {
+  text-align: center;
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-primary);
+}
+.card-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-headings);
+  margin-bottom: var(--space-sm);
+}
+.price {
+  font-size: clamp(2.5rem, 8vw, 3.5rem);
+  font-weight: 800;
+  color: var(--text-headings);
+  margin-bottom: var(--space-sm);
+}
+.price .price-term {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-left: var(--space-sm);
+}
+.card-description {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  min-height: 50px; /* Ensure consistent height for descriptions */
+}
+
+.card-features {
+  padding-top: var(--space-xl);
+  flex-grow: 1; /* Pushes the CTA button to the bottom */
+}
+.card-features h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.card-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.card-features li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.feature-check-icon {
+  color: var(--brand-success);
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.card-cta {
+  margin-top: var(--space-2xl);
+}
+.card-cta .btn {
+  width: 100%; /* Make buttons full width of the card */
+  padding-top: var(--space-md);
+  padding-bottom: var(--space-md);
+}

@@ -10,7 +10,7 @@
   max-height: 850px; /* Optional: Prevent it from being excessively tall on long screens */
   
   position: relative; /* CRUCIAL: Establish as a positioning context for the canvas */
-  padding: var(--space-2xl) 0;
+  padding: var(--space-2xl) var(--space-lg);
   overflow: hidden;
 }
 
@@ -89,7 +89,7 @@
 /* --- "How It Works" Section --- */
 .steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* This is already responsive! */
   gap: var(--space-xl);
   margin-top: var(--space-2xl);
 }

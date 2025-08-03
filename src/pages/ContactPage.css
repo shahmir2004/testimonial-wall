@@ -1,0 +1,54 @@
+/* src/pages/ContactPage.css */
+
+.contact-page-wrapper {
+  padding: var(--space-2xl) 0;
+  width: 100%;
+}
+
+.contact-page-wrapper .container {
+  max-width: 700px; /* Constrain width for a focused contact form */
+}
+
+.contact-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+.contact-header h1 { margin-bottom: var(--space-sm); }
+.contact-header p { color: var(--text-secondary); font-size: 1.1rem; }
+
+.contact-form-card {
+  background-color: var(--bg-secondary);
+  padding: var(--space-2xl);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-lg);
+}
+.contact-form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+@media (min-width: 600px) {
+  .form-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.form-status {
+  text-align: center;
+  padding: var(--space-md);
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.form-status.success { background-color: rgba(var(--brand-success-rgb, 40, 167, 69), 0.1); color: var(--brand-success); border-color: rgba(var(--brand-success-rgb, 40, 167, 69), 0.3); }
+.form-status.error { background-color: rgba(var(--brand-error-rgb), 0.1); color: var(--brand-error); border-color: rgba(var(--brand-error-rgb), 0.3); }
+.form-status.info { background-color: rgba(var(--brand-primary-rgb), 0.1); color: var(--brand-primary); border-color: rgba(var(--brand-primary-rgb), 0.3); }
+
+.contact-form-card .btn-primary {
+  align-self: flex-start; /* Align button to the left */
+}
