@@ -1,4 +1,4 @@
-/* src/pages/LoginPage.css - Revamped for Custom Form */
+/* src/pages/LoginPage.css - Enhanced for Professional Login */
 
 .login-page-wrapper {
   display: flex;
@@ -9,7 +9,7 @@
   width: 100%;
 }
 
-.login-card-revamped {
+.login-card, .login-card-revamped {
   width: 100%;
   max-width: 420px;
   background-color: var(--bg-secondary);
@@ -41,7 +41,52 @@
   gap: 1.25rem;
 }
 
-/* Use global .form-group styles from index.css */
+/* Enhanced form group styles */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group input.error {
+  border-color: var(--brand-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.field-error {
+  color: var(--brand-error);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
 .forgot-password-link {
     text-align: right;
@@ -120,4 +165,26 @@
 }
 .toggle-button:hover {
   text-decoration: underline;
+}
+
+.check-email-header {
+  padding: var(--space-lg) 0;
+}
+.check-email-header svg {
+  width: 48px;
+  height: 48px;
+  color: var(--brand-success);
+  margin-bottom: var(--space-lg);
+}
+.check-email-header h2 {
+  font-size: 1.6rem;
+}
+.check-email-header p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-top: var(--space-md);
+}
+.check-email-header p strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }

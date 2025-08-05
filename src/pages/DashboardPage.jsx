@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemFadeInUpVariants, sectionScrollRevealVariants, staggerContainerVariants } from '../utils/animationVariants';
 import './DashboardPage.css';
@@ -142,6 +143,7 @@ const WidgetCustomizer = ({ userId, showStatusMessage }) => {
 // --- Main Dashboard Page Component ---
 function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -152,8 +154,56 @@ function DashboardPage() {
   const [editingTestimonial, setEditingTestimonial] = useState(null);
   const [isSummarizing, setIsSummarizing] = useState(null);
 
+  // Password setup notification state
+  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [passwordSetupChecked, setPasswordSetupChecked] = useState(false);
+
   const fetchTestimonials = useCallback(async () => { if (!user) return; setLoading(true); try { const { data, error } = await supabase.from('testimonials').select('*').eq('user_id', user.id).order('created_at', { ascending: false }); if (error) throw error; setTestimonials(data || []); } catch (err) { setError(err.message); } finally { setLoading(false); } }, [user]);
-  useEffect(() => { fetchTestimonials(); }, [fetchTestimonials]);
+  
+  // Check if user needs password setup (Magic Link users)
+  const checkPasswordSetupNeeded = useCallback(async () => {
+    if (!user || passwordSetupChecked) return;
+    
+    try {
+      // Check if user has recently signed in (within last 5 minutes) - indicating Magic Link sign-in
+      const now = new Date();
+      const userCreatedAt = new Date(user.created_at);
+      const userLastSignIn = new Date(user.last_sign_in_at);
+      const timeSinceSignIn = now - userLastSignIn;
+      const timeSinceCreation = now - userCreatedAt;
+      
+      // Show password setup if:
+      // 1. User signed in recently (within 2 minutes) OR
+      // 2. User account is new (within 10 minutes) AND they just signed in
+      const isRecentSignIn = timeSinceSignIn < 2 * 60 * 1000; // 2 minutes
+      const isNewAccount = timeSinceCreation < 10 * 60 * 1000; // 10 minutes
+      
+      // Also check if this is from Magic Link by checking URL params or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromMagicLink = urlParams.get('magic_link') === 'true' || 
+                           localStorage.getItem('magic_link_signin') === 'true';
+      
+      if ((isRecentSignIn || isNewAccount) || fromMagicLink) {
+        setShowPasswordSetup(true);
+        // Clear the magic link flag if it exists
+        localStorage.removeItem('magic_link_signin');
+        // Clear URL params
+        if (fromMagicLink) {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      }
+      
+      setPasswordSetupChecked(true);
+    } catch (error) {
+      console.error('Error checking password setup:', error);
+      setPasswordSetupChecked(true);
+    }
+  }, [user, passwordSetupChecked]);
+
+  useEffect(() => { 
+    fetchTestimonials(); 
+    checkPasswordSetupNeeded();
+  }, [fetchTestimonials, checkPasswordSetupNeeded]);
 
   const showStatusMessage = (text, type = 'info', duration = 3000) => { setStatusMessage({ text, type }); setTimeout(() => setStatusMessage({ text: '', type: '' }), duration); };
   const handleCreateTestimonial = async (e) => { e.preventDefault(); if (!authorName.trim() || !testimonialText.trim()) { showStatusMessage('Author and text are required.', 'error'); return; } setIsSubmitting(true); const { data, error } = await supabase.from('testimonials').insert([{ author_name: authorName, testimonial_text: testimonialText, user_id: user.id }]).select(); if (error) { showStatusMessage(`Error: ${error.message}`, 'error'); } else { setTestimonials([data[0], ...testimonials]); setAuthorName(''); setTestimonialText(''); showStatusMessage('Testimonial added!', 'success'); } setIsSubmitting(false); };
@@ -227,6 +277,138 @@ function DashboardPage() {
             <h2>Dashboard</h2>
             <p>Manage, customize, and embed your "Wall of Love" from here.</p>
           </motion.header>
+
+          {/* Password Setup Notification Banner */}
+          <AnimatePresence>
+            {showPasswordSetup && (
+              <motion.div
+                className="password-setup-banner"
+                variants={itemFadeInUpVariants}
+                initial="hidden"
+                animate="visible"
+                exit={{ opacity: 0, y: -20 }}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  padding: '1.5rem',
+                  borderRadius: '12px',
+                  marginBottom: '2rem',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                    <div style={{ fontSize: '2rem' }}>🔐</div>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
+                        Welcome! Set up a password for your account
+                      </h3>
+                      <p style={{ margin: '0 0 1rem 0', opacity: 0.9, lineHeight: 1.5 }}>
+                        You signed in with Magic Link, which is great! But you can also set up a password 
+                        to have multiple ways to access your account securely.
+                      </p>
+                      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => navigate('/account')}
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '6px',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                            fontWeight: '500',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => {
+                            e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                          }}
+                        >
+                          Set Up Password Now
+                        </button>
+                        <button
+                          onClick={() => setShowPasswordSetup(false)}
+                          style={{
+                            background: 'transparent',
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '6px',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                            fontWeight: '400',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => {
+                            e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.target.style.background = 'transparent';
+                          }}
+                        >
+                          Maybe Later
+                        </button>
+                      </div>
+                      <div style={{ 
+                        marginTop: '0.75rem', 
+                        fontSize: '0.8rem', 
+                        opacity: 0.8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <span>💡</span>
+                        <span>You can always set this up later in Account Settings</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowPasswordSetup(false)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '1.5rem',
+                        cursor: 'pointer',
+                        padding: '0.25rem',
+                        lineHeight: 1
+                      }}
+                      aria-label="Close notification"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Decorative background elements */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-50%',
+                  right: '-10%',
+                  width: '200px',
+                  height: '200px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  zIndex: 1
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-30%',
+                  left: '-5%',
+                  width: '150px',
+                  height: '150px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '50%',
+                  zIndex: 1
+                }}></div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <motion.div className="dashboard-grid">
             <motion.div className="dashboard-card form-card" variants={itemFadeInUpVariants}>
               <div className="card-header"><h3>Add New Testimonial</h3></div>

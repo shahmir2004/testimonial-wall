@@ -24,9 +24,22 @@ export const AuthProvider = ({ children }) => {
     getSession();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Detect Magic Link sign-in
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Check if this is a Magic Link sign-in by looking at URL or recent activity
+        const urlParams = new URLSearchParams(window.location.search);
+        const isMagicLink = urlParams.get('magic_link') === 'true' || 
+                           window.location.hash.includes('type=magiclink') ||
+                           event === 'TOKEN_REFRESHED'; // Often indicates Magic Link
+        
+        if (isMagicLink) {
+          localStorage.setItem('magic_link_signin', 'true');
+        }
+      }
     });
 
     return () => {
