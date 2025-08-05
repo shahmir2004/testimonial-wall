@@ -210,6 +210,8 @@ function LoginPage() {
           }
           setRateLimitCooldown(3);
         } else if (data.user) {
+          // Clear any Magic Link flags since this is a password login
+          localStorage.removeItem('magic_link_signin');
           setMessage({ type: 'success', text: 'Signed in successfully!' });
           setTimeout(() => navigate('/dashboard'), 500);
         }

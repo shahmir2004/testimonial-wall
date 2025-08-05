@@ -28,13 +28,12 @@ export const AuthProvider = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Detect Magic Link sign-in
+      // Detect Magic Link sign-in more accurately
       if (event === 'SIGNED_IN' && session?.user) {
-        // Check if this is a Magic Link sign-in by looking at URL or recent activity
+        // Check if this is a Magic Link sign-in by looking at URL parameters specifically
         const urlParams = new URLSearchParams(window.location.search);
         const isMagicLink = urlParams.get('magic_link') === 'true' || 
-                           window.location.hash.includes('type=magiclink') ||
-                           event === 'TOKEN_REFRESHED'; // Often indicates Magic Link
+                           window.location.hash.includes('type=magiclink');
         
         if (isMagicLink) {
           localStorage.setItem('magic_link_signin', 'true');

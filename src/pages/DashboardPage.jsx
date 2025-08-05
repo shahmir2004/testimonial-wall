@@ -160,37 +160,26 @@ function DashboardPage() {
 
   const fetchTestimonials = useCallback(async () => { if (!user) return; setLoading(true); try { const { data, error } = await supabase.from('testimonials').select('*').eq('user_id', user.id).order('created_at', { ascending: false }); if (error) throw error; setTestimonials(data || []); } catch (err) { setError(err.message); } finally { setLoading(false); } }, [user]);
   
-  // Check if user needs password setup (Magic Link users)
+  // Check if user needs password setup (Magic Link users only)
   const checkPasswordSetupNeeded = useCallback(async () => {
     if (!user || passwordSetupChecked) return;
     
     try {
-      // Check if user has recently signed in (within last 5 minutes) - indicating Magic Link sign-in
-      const now = new Date();
-      const userCreatedAt = new Date(user.created_at);
-      const userLastSignIn = new Date(user.last_sign_in_at);
-      const timeSinceSignIn = now - userLastSignIn;
-      const timeSinceCreation = now - userCreatedAt;
-      
-      // Show password setup if:
-      // 1. User signed in recently (within 2 minutes) OR
-      // 2. User account is new (within 10 minutes) AND they just signed in
-      const isRecentSignIn = timeSinceSignIn < 2 * 60 * 1000; // 2 minutes
-      const isNewAccount = timeSinceCreation < 10 * 60 * 1000; // 10 minutes
-      
-      // Also check if this is from Magic Link by checking URL params or localStorage
+      // Only show for Magic Link users, not password users
       const urlParams = new URLSearchParams(window.location.search);
       const fromMagicLink = urlParams.get('magic_link') === 'true' || 
                            localStorage.getItem('magic_link_signin') === 'true';
       
-      if ((isRecentSignIn || isNewAccount) || fromMagicLink) {
+      // Check if user has been dismissed before
+      const dismissedKey = `password_setup_dismissed_${user.id}`;
+      const wasDismissed = localStorage.getItem(dismissedKey) === 'true';
+      
+      if (fromMagicLink && !wasDismissed) {
         setShowPasswordSetup(true);
         // Clear the magic link flag if it exists
         localStorage.removeItem('magic_link_signin');
         // Clear URL params
-        if (fromMagicLink) {
-          window.history.replaceState({}, '', window.location.pathname);
-        }
+        window.history.replaceState({}, '', window.location.pathname);
       }
       
       setPasswordSetupChecked(true);
@@ -308,79 +297,95 @@ function DashboardPage() {
                         You signed in with Magic Link, which is great! But you can also set up a password 
                         to have multiple ways to access your account securely.
                       </p>
-                      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                        <button
-                          onClick={() => navigate('/account')}
-                          style={{
-                            background: 'rgba(255, 255, 255, 0.2)',
-                            border: '1px solid rgba(255, 255, 255, 0.3)',
-                            color: 'white',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '6px',
-                            fontSize: '0.9rem',
-                            cursor: 'pointer',
-                            fontWeight: '500',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseOver={(e) => {
-                            e.target.style.background = 'rgba(255, 255, 255, 0.3)';
-                          }}
-                          onMouseOut={(e) => {
-                            e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                          }}
-                        >
-                          Set Up Password Now
-                        </button>
-                        <button
-                          onClick={() => setShowPasswordSetup(false)}
-                          style={{
-                            background: 'transparent',
-                            border: '1px solid rgba(255, 255, 255, 0.4)',
-                            color: 'white',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '6px',
-                            fontSize: '0.9rem',
-                            cursor: 'pointer',
-                            fontWeight: '400',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseOver={(e) => {
-                            e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                          }}
-                          onMouseOut={(e) => {
-                            e.target.style.background = 'transparent';
-                          }}
-                        >
-                          Maybe Later
-                        </button>
-                      </div>
-                      <div style={{ 
-                        marginTop: '0.75rem', 
-                        fontSize: '0.8rem', 
-                        opacity: 0.8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                      }}>
-                        <span>💡</span>
-                        <span>You can always set this up later in Account Settings</span>
-                      </div>
                     </div>
                     <button
-                      onClick={() => setShowPasswordSetup(false)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'rgba(255, 255, 255, 0.8)',
-                        fontSize: '1.5rem',
-                        cursor: 'pointer',
-                        padding: '0.25rem',
-                        lineHeight: 1
+                      onClick={() => {
+                        const dismissedKey = `password_setup_dismissed_${user.id}`;
+                        localStorage.setItem(dismissedKey, 'true');
+                        setShowPasswordSetup(false);
                       }}
-                      aria-label="Close notification"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '1.25rem',
+                        padding: '0.25rem',
+                        opacity: 0.7,
+                        transition: 'opacity 0.2s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.opacity = '1';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.opacity = '0.7';
+                      }}
+                      title="Dismiss"
                     >
-                      ×
+                      ✕
                     </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => navigate('/account')}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                      }}
+                    >
+                      Set Up Password Now
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Remember that user dismissed this permanently
+                        const dismissedKey = `password_setup_dismissed_${user.id}`;
+                        localStorage.setItem(dismissedKey, 'true');
+                        setShowPasswordSetup(false);
+                      }}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid rgba(255, 255, 255, 0.4)',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                        fontWeight: '400',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.background = 'transparent';
+                      }}
+                    >
+                      Maybe Later
+                    </button>
+                  </div>
+                  <div style={{ 
+                    marginTop: '0.75rem', 
+                    fontSize: '0.8rem', 
+                    opacity: 0.8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <span>💡</span>
+                    <span>You can always set this up later in Account Settings</span>
                   </div>
                 </div>
                 
